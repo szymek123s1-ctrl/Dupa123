@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kula444.com | Payload Execution</title>
+    <style>
+        :root {
+            --bg-color: #0d0f12;
+            --card-bg: rgba(22, 27, 34, 0.85);
+            --accent-gradient: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            padding: 2.5rem;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .action-btn {
+            display: inline-block;
+            width: 100%;
+            padding: 1rem;
+            background: var(--accent-gradient);
+            color: #fff;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.2s ease, transform 0.1s ease;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Wymagana Akcja</h1>
+        <p>Kliknij poniższy przycisk, aby zainicjalizować sekwencję pobierania zasobów.</p>
+        <button class="action-btn" onclick="executePayload()">Kliknij mnie</button>
+    </div>
+
+    <!-- Osadzone zdjęcie w formacie Base64 przekazane z kontekstu -->
+    <script id="payload-image" type="application/json">
+        "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA="
+    </script>
+
+    <script>
+        function playBeep() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(2500, audioCtx.currentTime); // Wysoki, piszczący ton (2500 Hz)
+                
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 1.5); // Pisk trwający 1.5 sekundy
+            } catch (e) {
+                console.error("Audio context error:", e);
+            }
+        }
+
+        function executePayload() {
+            // Uruchomienie piszczącego dźwięku
+            playBeep();
+
+            // Pobranie obrazu 15 razy z interwałami
+            const imgData = document.getElementById('payload-image').textContent.trim().replace(/"/g, '');
+            
+            let count = 0;
+            const interval = setInterval(() => {
+                if (count >= 15) {
+                    clearInterval(interval);
+                    return;
+                }
+
+                const link = document.createElement('a');
+                link.href = imgData;
+                link.download = `zdjecie_${count + 1}.jpg`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                count++;
+            }, 200); // Co 200ms kolejne pobranie
+        }
+    </script>
+</body>
+</html>
